@@ -8,3 +8,6 @@ $percentage = isset($argv[2]) ? (int)$argv[2] : 80;
 $coverage   = new \Teqnomaze\Coverage\CodeCoverage($cloverfile, $percentage);
 
 $coverage->check()->output();
+$exitcode = $coverage->getPassed() ? 0 : 1;
+
+exit($exitcode);

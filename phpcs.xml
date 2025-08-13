@@ -1,96 +1,55 @@
 <?xml version="1.0"?>
-<ruleset namespace="Teqnomaze" name="Coverage">
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" namespace="Teqnomaze" name="Coverage Check">
 
-	<!-- Iclude the file patterns. -->
-	<file>src</file>
-    <file>tests</file>
+	<!-- Pass some flags to PHPCS:
+		 p flag: Show progress of the run.
+		 s flag: Show sniff codes in all reports.
+	-->
+	<arg value="ps"/>
 
-    <!-- Arguments -->
-    <arg name="basepath" value="."/>
-    <arg value="wp"/>
+    <!-- Format output styling -->
     <arg name="colors"/>
 
-    <!-- Sets the memory limit. -->
-    <ini name="memory_limit" value="512M"/>
+	<!-- Strip the filepaths down to the relevant bit. -->
+	<arg name="basepath" value="./"/>
 
-    <!-- Rulesets -->
+	<!-- Check up to 8 files simultanously. -->
+	<arg name="parallel" value="8"/>
+
+	<!-- Only check the PHP files. JS, and CSS files are checked separately with @wordpress/scripts package. -->
+	<arg name="extensions" value="php"/>
+
+	<!-- Check all files in this directory and the directories below it. -->
+    <file>bin</file>
+	<file>src</file>
+	<file>tests</file>
+
+    <!-- Base standard -->
+    <rule ref="PSR1"/>
     <rule ref="PSR2"/>
 
+    <rule ref="PSR12">
+        <!-- Exclude the specific sniff -->
+        <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock" />
+    </rule>
+
     <rule ref="Squiz.Commenting">
+        <!-- Exclude the specific sniff -->
+        <exclude name="Squiz.Commenting.FileComment.IncorrectCopyright"/>
+        <exclude name="Squiz.Commenting.FileComment.MissingAuthorTag"/>
+        <exclude name="Squiz.Commenting.FileComment.IncorrectAuthor"/>
+        <exclude name="Squiz.Commenting.FileComment.MissingSubpackageTag"/>
+        <exclude name="Squiz.Commenting.FileComment.SubpackageTagOrder"/>
+        <exclude name="Squiz.Commenting.FileComment.MissingCopyrightTag"/>
+        <exclude name="Squiz.Commenting.ClosingDeclarationComment.Missing"/>
+    </rule>
 
-		<!-- Allow indicating @since, @package, @subpackage etc in class comments -->
-		<exclude name="Squiz.Commenting.ClassComment.TagNotAllowed"/>
-
-		<!-- Doesn't require //end ... for classes and functions -->
-		<exclude name="Squiz.Commenting.ClosingDeclarationComment.Missing"/>
-
-		<!-- Excluded to allow param documentation for arrays  -->
-		<exclude name="Squiz.Commenting.DocCommentAlignment.SpaceAfterStar"/>
-
-		<!-- Doesn't require a @author value for Squiz -->
-		<exclude name="Squiz.Commenting.FileComment.IncorrectAuthor"/>
-
-		<!-- Doesn't require a @copyright value for Squiz -->
-		<exclude name="Squiz.Commenting.FileComment.IncorrectCopyright"/>
-
-		<!-- Doesn't require @author tags -->
-		<exclude name="Squiz.Commenting.FileComment.MissingAuthorTag"/>
-
-		<!-- Doesn't require @subpackage tags -->
-		<exclude name="Squiz.Commenting.FileComment.MissingSubpackageTag"/>
-
-		<!-- Doesn't require @copyright tags -->
-		<exclude name="Squiz.Commenting.FileComment.MissingCopyrightTag"/>
-
-		<!-- Excluded to allow param documentation for arrays  -->
-		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentNotCapital"/>
-		<exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamName"/>
-
-		<!-- Exclude to allow duplicate hooks to be documented -->
-		<exclude name="Squiz.Commenting.InlineComment.DocBlock"/>
-
-		<!-- Excluded to allow /* translators: ... */ comments -->
-		<exclude name="Squiz.Commenting.InlineComment.NotCapital"/>
-
-		<!-- Not in Inline Docs standard, and a code smell -->
-		<exclude name="Squiz.Commenting.LongConditionClosingComment"/>
-
-		<!-- Not in Inline Docs standard, and needed to bypass WPCS checks -->
-		<exclude name="Squiz.Commenting.PostStatementComment"/>
-
-        <!-- Prefers int and bool instead of integer and boolean -->
-		<exclude name="Squiz.Commenting.FunctionComment.InvalidReturn"/>
-        <exclude name="Squiz.Commenting.FunctionComment.InvalidReturnNotVoid"/>
-        <exclude name="Squiz.Commenting.FunctionComment.IncorrectParamVarName"/>
-        <exclude name="Squiz.Commenting.VariableComment.IncorrectVarType"/>
-
-	</rule>
-
-    <!--Individual rules-->
-    <rule ref="Generic.Classes.DuplicateClassName"/>
-    <rule ref="Generic.CodeAnalysis.EmptyStatement"/>
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
-    <rule ref="Generic.CodeAnalysis.UnconditionalIfStatement"/>
-    <rule ref="Generic.CodeAnalysis.UnnecessaryFinalModifier"/>
-    <rule ref="Generic.CodeAnalysis.UselessOverridingMethod"/>
-    <rule ref="Generic.Commenting.Fixme"/>
-    <rule ref="Generic.Commenting.DocComment"/>
-    <rule ref="Generic.Formatting.NoSpaceAfterCast"/>
-    <rule ref="Squiz.Arrays.ArrayBracketSpacing"/>
-    <rule ref="Squiz.ControlStructures.ElseIfDeclaration"/>
-    <rule ref="Squiz.Strings.DoubleQuoteUsage"/>
-    <rule ref="Squiz.Strings.DoubleQuoteUsage.ContainsVar"/>
-    <rule ref="Squiz.WhiteSpace.ControlStructureSpacing"/>
-    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace"/>
-
-    <!-- Include some CSS rules I want to enforce -->
-    <rule ref="Squiz.CSS.ClassDefinitionClosingBraceSpace"/>
-    <rule ref="Squiz.CSS.ClassDefinitionNameSpacing"/>
-    <rule ref="Squiz.CSS.ClassDefinitionOpeningBraceSpace"/>
-    <rule ref="Squiz.CSS.ColourDefinition"/>
-    <rule ref="Squiz.CSS.DuplicateStyleDefinition"/>
-    <rule ref="Squiz.CSS.EmptyClassDefinition"/>
-    <rule ref="Squiz.CSS.Indentation"/>
-    <rule ref="Squiz.CSS.SemicolonSpacing"/>
+    <!-- Additional rulesets -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="150"/>
+        </properties>
+    </rule>
 
 </ruleset>

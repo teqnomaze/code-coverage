@@ -2,8 +2,11 @@
 /**
  * The CodeCoverage class file.
  *
- * @package Coverage
+ * @package Teqnomaze\Coverage
+ * @author  Musthafa SM <musthafasm@gmail.com>
  */
+
+declare(strict_types=1);
 
 namespace Teqnomaze\Coverage;
 
@@ -17,39 +20,40 @@ class CodeCoverage
      *
      * @var string $clover
      */
-    private $clover = null;
+    private $clover;
 
     /**
      * The coverage threshold percentage that's acceptable (Min = 1, Max = 100).
      *
-     * @var int $threshold
+     * @var integer $threshold
      */
-    private $threshold = null;
+    private $threshold;
 
     /**
      * The coverage output message.
      *
-     * @var string $message
+     * @var string|null $message
      */
-    private $message = null;
+    private $message;
 
     /**
-     * The console output status.
+     * The coverage test passed.
      *
-     * @var int $status
+     * @var boolean $passed
      */
-    private $status = 0;
+    private $passed = false;
 
     /**
      * Initiate class object with default parameters.
      *
-     * @param string $clover    The clover.xml file path.
-     * @param int    $threshold The coverage threshold percentage.
+     * @param string  $clover    The clover.xml file path.
+     * @param integer $threshold The coverage threshold percentage.
      */
-    public function __construct(string $clover, int $threshold)
+    public function __construct(string $clover = '', int $threshold = 80)
     {
-        $this->clover    = $clover;
-        $this->threshold = min(100, max(0, $threshold));
+
+        $this->setClover($clover);
+        $this->setThreshold($threshold);
     }
 
     /**
@@ -60,47 +64,144 @@ class CodeCoverage
      */
     public function check(): self
     {
-        if (empty($this->clover) || !file_exists($this->clover)) {
-            throw new \InvalidArgumentException('The clover.xml file not provided or not found!');
+
+        $clover = $this->getClover();
+
+        if (empty($clover) || !file_exists($clover)) {
+            throw new \InvalidArgumentException('Clover file not found!');
         }
 
-        $metrics = (new \SimpleXMLElement(file_get_contents($this->clover)))->xpath('//metrics');
-        $total   = 0;
+        $metrics = (new \SimpleXMLElement(file_get_contents($clover)))->xpath('//metrics');
+        $total = 0;
         $checked = 0;
 
         foreach ($metrics as $metric) {
-            $total   += (int)$metric['elements'];
-            $checked += (int)$metric['coveredelements'];
+            $total += (int) $metric['elements'];
+            $checked += (int) $metric['coveredelements'];
         }
 
-        $percentage = (int)$this->threshold;
-        $coverage   = round(($checked / $total) * 100);
+        $percentage = min(100, max(0, $this->getThreshold()));
+        $coverage = round(($checked / $total) * 100);
 
-        if ($coverage < $percentage) {
-            $this->status  = 1;
-            $this->message = 'Code coverage is ' . $coverage . '%, which is below the accepted ' . $percentage . '%';
+        if ($coverage >= $percentage) {
+            $status = 'above';
+            $this->setPassed(true);
         } else {
-            $this->status  = 0;
-            $this->message = 'Code coverage is ' . $coverage . '%, which is above the accepted ' . $percentage . '%';
+            $status = 'below';
+            $this->setPassed(false);
         }
+
+        $message = sprintf(
+            'Code coverage is %s, which is %s the accepted %s',
+            $coverage . '%',
+            $status,
+            $percentage . '%'
+        );
+
+        $this->setMessage($message);
 
         return $this;
     }
 
     /**
-     * Print the coverage result output.
+     * Output the coverage result.
      *
-     * @param bool $print Flag for echo the output.
-     *
-     * @return null|string
+     * @return void
      */
-    public function output(bool $print = true): ?string
+    public function output(): void
     {
-        if ($print) {
-            echo $this->message . PHP_EOL;
-            exit($this->status);
+        if ($this->getPassed()) {
+            echo PHP_EOL . "\033[42;37m" . $this->getMessage() . "\033[0m" . str_repeat(PHP_EOL, 2);
+        } else {
+            echo PHP_EOL . "\033[41;37m" . $this->getMessage() . "\033[0m" . str_repeat(PHP_EOL, 2);
         }
+    }
 
+    /**
+     * Get the clover file.
+     *
+     * @return string
+     */
+    public function getClover(): string
+    {
+        return $this->clover;
+    }
+
+    /**
+     * Set the clover file.
+     *
+     * @param  string $clover The clover file.
+     * @return self
+     */
+    public function setClover(string $clover): self
+    {
+        $this->clover = $clover;
+        return $this;
+    }
+
+    /**
+     * Get the threshold value.
+     *
+     * @return integer
+     */
+    public function getThreshold(): int
+    {
+        return $this->threshold;
+    }
+
+    /**
+     * Set the threshold value.
+     *
+     * @param  integer $threshold The threshold value.
+     * @return self
+     */
+    public function setThreshold(int $threshold): self
+    {
+        $this->threshold = $threshold;
+        return $this;
+    }
+
+    /**
+     * Get the message value.
+     *
+     * @return string|null
+     */
+    public function getMessage(): ?string
+    {
         return $this->message;
+    }
+
+    /**
+     * Set the message value.
+     *
+     * @param  string $message The message value.
+     * @return self
+     */
+    public function setMessage(string $message): self
+    {
+        $this->message = $message;
+        return $this;
+    }
+
+    /**
+     * Get the passed flag.
+     *
+     * @return boolean
+     */
+    public function getPassed(): bool
+    {
+        return $this->passed;
+    }
+
+    /**
+     * Set the passed flag.
+     *
+     * @param  boolean $passed The passed flag.
+     * @return self
+     */
+    public function setPassed(bool $passed): self
+    {
+        $this->passed = $passed;
+        return $this;
     }
 }

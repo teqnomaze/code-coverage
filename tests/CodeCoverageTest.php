@@ -1,14 +1,16 @@
 <?php
 /**
- * The CodeCoverage test class file.
+ * The CodeCoverage class file.
  *
- * @package    Coverage
- * @subpackage Test
+ * @package Teqnomaze\Coverage\Test
+ * @author  Musthafa SM <musthafasm@gmail.com>
  */
+
+declare(strict_types=1);
 
 namespace Teqnomaze\Coverage\Test;
 
-use \Teqnomaze\Coverage\CodeCoverage;
+use Teqnomaze\Coverage\CodeCoverage;
 
 /**
  * The CodeCoverage class.
@@ -16,29 +18,33 @@ use \Teqnomaze\Coverage\CodeCoverage;
 class CodeCoverageTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * Run unit testing for `check` function with a success message.
+     * Run test for private properties.
      *
      * @return void
      */
-    public function testCheckSuccess(): void
+    public function testProperties(): void
     {
-        $object  = new CodeCoverage('./tests/clover-test.xml', 85);
+        $object = new CodeCoverage();
 
-        $this->assertInstanceOf(CodeCoverage::class, $object->check());
-        $this->assertStringContainsString('which is above the accepted', $object->output(false));
-    }
+        $clover = './tests/clover-test.xml';
+        $this->assertEmpty($object->getClover());
+        $this->assertInstanceOf(CodeCoverage::class, $object->setClover($clover));
+        $this->assertEquals($clover, $object->getClover());
 
-    /**
-     * Run unit testing for `check` function witha failed message.
-     *
-     * @return void
-     */
-    public function testCheckFalied(): void
-    {
-        $object  = new CodeCoverage('./tests/clover-test.xml', 90);
+        $threshold = 90;
+        $this->assertEquals(80, $object->getThreshold());
+        $this->assertInstanceOf(CodeCoverage::class, $object->setThreshold($threshold));
+        $this->assertEquals($threshold, $object->getThreshold());
 
-        $this->assertInstanceOf(CodeCoverage::class, $object->check());
-        $this->assertStringContainsString('which is below the accepted', $object->output(false));
+        $message = 'Passed!';
+        $this->assertNull($object->getMessage());
+        $this->assertInstanceOf(CodeCoverage::class, $object->setMessage($message));
+        $this->assertEquals($message, $object->getMessage());
+
+        $passed = true;
+        $this->assertFalse($object->getPassed());
+        $this->assertInstanceOf(CodeCoverage::class, $object->setPassed($passed));
+        $this->assertEquals($passed, $object->getPassed());
     }
 
     /**
@@ -48,9 +54,73 @@ class CodeCoverageTest extends \PHPUnit\Framework\TestCase
      */
     public function testCheckWithException(): void
     {
-        $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage('The clover.xml file not provided or not found!');
+        $object = new CodeCoverage();
 
-        (new CodeCoverage('', 90))->check();
+        $this->expectException('InvalidArgumentException');
+        $this->expectExceptionMessage('Clover file not found!');
+
+        $object->check();
+    }
+
+    /**
+     * Run unit testing for `check` function with a success message.
+     *
+     * @return void
+     */
+    public function testCheckPassed(): void
+    {
+        $object = new CodeCoverage('./tests/clover-test.xml');
+        $message = 'Code coverage is 88%, which is above the accepted 80%';
+
+        $this->assertInstanceOf(CodeCoverage::class, $object->check());
+        $this->assertEquals($message, $object->getMessage());
+        $this->assertTrue($object->getPassed());
+    }
+
+    /**
+     * Run unit testing for `check` function with a failed message.
+     *
+     * @return void
+     */
+    public function testCheckFailed(): void
+    {
+        $object = new CodeCoverage('./tests/clover-test.xml', 90);
+        $message = 'Code coverage is 88%, which is below the accepted 90%';
+
+        $this->assertInstanceOf(CodeCoverage::class, $object->check());
+        $this->assertEquals($message, $object->getMessage());
+        $this->assertFalse($object->getPassed());
+    }
+
+    /**
+     * Run unit testing for `output` function with a success message.
+     *
+     * @return void
+     */
+    public function testOutputPassed(): void
+    {
+        $object = (new CodeCoverage('./tests/clover-test.xml'))->check();
+
+        ob_start();
+        $object->output();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('which is above the accepted 80%', $output);
+    }
+
+    /**
+     * Run unit testing for `output` function with a failed message.
+     *
+     * @return void
+     */
+    public function testOutputFailed(): void
+    {
+        $object = (new CodeCoverage('./tests/clover-test.xml', 90))->check();
+
+        ob_start();
+        $object->output();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('which is below the accepted 90%', $output);
     }
 }
