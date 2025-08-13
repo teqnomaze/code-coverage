@@ -1,6 +1,8 @@
 # Coverage Checker
 A composer package for checking code coverage score in percentage using the clover.xml report of phpunit.
 
+[![Code Analysis](https://github.com/teqnomaze/code-coverage/actions/workflows/analysis.yml/badge.svg)](https://github.com/teqnomaze/code-coverage/actions/workflows/analysis.yml)
+
 ### Installation
 This can be installed using [Composer](https://getcomposer.org).
 
