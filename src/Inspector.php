@@ -121,13 +121,15 @@ class Inspector
     }
 
     /**
-     * Print the coverage result, colored when the terminal supports it.
+     * Print the coverage result.
+     *
+     * @param bool|null $colored Force colors on or off, or null to detect terminal support.
      *
      * @return void
      *
      * @throws RuntimeException When the check has to run and the clover file is missing or invalid.
      */
-    public function output(): void
+    public function output(?bool $colored = null): void
     {
         if ($this->message === null) {
             $this->check();
@@ -135,9 +137,9 @@ class Inspector
 
         $text = (string) $this->message;
 
-        if ($this->supportsColor()) {
-            $color = $this->passed ? self::ANSI_PASS : self::ANSI_FAIL;
-            $text = $color . $text . self::ANSI_RESET;
+        if ($colored ?? $this->supportsColor()) {
+            $code = $this->passed ? self::ANSI_PASS : self::ANSI_FAIL;
+            $text = $code . $text . self::ANSI_RESET;
         }
 
         echo PHP_EOL . $text . str_repeat(PHP_EOL, 2);

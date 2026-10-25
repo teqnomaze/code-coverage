@@ -208,35 +208,56 @@ class InspectorTest extends TestCase
     }
 
     /**
-     * Run test for the `output` function with a passing result.
+     * Run test for the `output` function with a passing result in color.
      *
      * @return void
      */
-    public function testOutputPassed(): void
+    public function testOutputPassedWithColor(): void
     {
         $object = (new Inspector($this->fixture('clover-test.xml')))->check();
 
         ob_start();
-        $object->output();
+        $object->output(true);
         $output = (string) ob_get_clean();
 
+        $this->assertStringContainsString("\033[42;37m", $output);
+        $this->assertStringContainsString("\033[0m", $output);
         $this->assertStringContainsString('which is above the accepted 80%', $output);
     }
 
     /**
-     * Run test for the `output` function with a failing result.
+     * Run test for the `output` function with a failing result in color.
      *
      * @return void
      */
-    public function testOutputFailed(): void
+    public function testOutputFailedWithColor(): void
     {
         $object = (new Inspector($this->fixture('clover-test.xml'), 90))->check();
 
         ob_start();
-        $object->output();
+        $object->output(true);
         $output = (string) ob_get_clean();
 
+        $this->assertStringContainsString("\033[41;37m", $output);
+        $this->assertStringContainsString("\033[0m", $output);
         $this->assertStringContainsString('which is below the accepted 90%', $output);
+    }
+
+    /**
+     * Run test for the `output` function without color.
+     *
+     * @return void
+     */
+    public function testOutputWithoutColor(): void
+    {
+        $object = (new Inspector($this->fixture('clover-test.xml')))->check();
+
+        ob_start();
+        $object->output(false);
+        $output = (string) ob_get_clean();
+
+        $this->assertStringNotContainsString("\033", $output);
+        $this->assertStringContainsString('which is above the accepted 80%', $output);
     }
 
     /**
