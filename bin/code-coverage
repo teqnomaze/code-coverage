@@ -1,13 +1,26 @@
 #!/usr/bin/env php
 <?php
 
-require dirname( __DIR__ ) . '/src/CodeCoverage.php';
+declare(strict_types=1);
 
-$cloverfile = isset($argv[1]) ? (string)$argv[1] : '';
-$percentage = isset($argv[2]) ? (int)$argv[2] : 80;
-$coverage   = new \Teqnomaze\Coverage\CodeCoverage($cloverfile, $percentage);
+use Teqnomaze\Coverage\Inspector;
 
-$coverage->check()->output();
-$exitcode = $coverage->getPassed() ? 0 : 1;
+require dirname(__DIR__) . '/src/Inspector.php';
 
-exit($exitcode);
+$clover = $argv[1] ?? '';
+$threshold = isset($argv[2]) ? (int) $argv[2] : 80;
+
+if ($clover === '') {
+    fwrite(STDERR, 'Usage: coverage <clover.xml> [threshold=80]' . PHP_EOL);
+    exit(2);
+}
+
+try {
+    $inspector = new Inspector($clover, $threshold);
+    $inspector->check()->output();
+} catch (InvalidArgumentException | RuntimeException $exception) {
+    fwrite(STDERR, $exception->getMessage() . PHP_EOL);
+    exit(2);
+}
+
+exit($inspector->getExitCode());

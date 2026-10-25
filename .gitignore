@@ -1,29 +1,30 @@
-#composer stuff
-vendor
+# Dependencies and Builds
+vendor/
+build/
 composer.lock
-composer.phar
+.phpunit.cache
+.phpstan-cache
 
-# npm stuff
-node_modules
-package-lock.json
-
-# os and ide stuff
-*~
-*.bak
-Thumbs.db
-desktop.ini
-.buildpath
+# IDE Files
 .project
 .settings
-*.tmproj
-git_impact.sh
-cache.properties
-nbproject/
-.php_cs.cache
-._.DS_Store
-.DS_Store
 .vscode
+.idea/
 
-# random stuff
-build
-.phpunit.result.cache
+# Log Files
+*.log
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+*.local
+
+# Operating System Files
+*~
+*.bak
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+desktop.ini

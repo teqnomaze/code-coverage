@@ -1,55 +1,95 @@
 <?xml version="1.0"?>
-<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" namespace="Teqnomaze" name="Coverage Check">
+<ruleset name="Teqnomaze"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
 
-	<!-- Pass some flags to PHPCS:
-		 p flag: Show progress of the run.
-		 s flag: Show sniff codes in all reports.
-	-->
-	<arg value="ps"/>
+    <description>Coding standards for generic PHP libraries (PSR-12).</description>
 
-    <!-- Format output styling -->
-    <arg name="colors"/>
-
-	<!-- Strip the filepaths down to the relevant bit. -->
-	<arg name="basepath" value="./"/>
-
-	<!-- Check up to 8 files simultanously. -->
-	<arg name="parallel" value="8"/>
-
-	<!-- Only check the PHP files. JS, and CSS files are checked separately with @wordpress/scripts package. -->
-	<arg name="extensions" value="php"/>
-
-	<!-- Check all files in this directory and the directories below it. -->
+    <!-- Source files. -->
     <file>bin</file>
-	<file>src</file>
-	<file>tests</file>
+    <file>src</file>
+    <file>tests</file>
 
-    <!-- Base standard -->
-    <rule ref="PSR1"/>
-    <rule ref="PSR2"/>
+    <!-- Exclude generated and third-party code. -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/build/*</exclude-pattern>
 
-    <rule ref="PSR12">
-        <!-- Exclude the specific sniff -->
-        <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock" />
+    <!-- Only PHP files. -->
+    <arg name="extensions" value="php" />
+
+    <!-- Show sniff codes, progress, and colors. -->
+    <arg value="sp" />
+    <arg name="colors" />
+
+    <!-- Use all CPU cores. -->
+    <arg name="parallel" value="8" />
+
+    <!-- Base standard. -->
+    <rule ref="PSR12" />
+
+    <!-- PHP conventions. -->
+    <rule ref="Generic.PHP.RequireStrictTypes" />
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax" />
+    <rule ref="Generic.PHP.DeprecatedFunctions" />
+
+    <!-- Code analysis. -->
+    <rule ref="Generic.CodeAnalysis.EmptyStatement" />
+    <rule ref="Generic.CodeAnalysis.UnconditionalIfStatement" />
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+        <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>
 
+    <!-- Structure and formatting. -->
+    <rule ref="Generic.Files.OneObjectStructurePerFile" />
+    <rule ref="Generic.ControlStructures.DisallowYodaConditions" />
+    <rule ref="Generic.Formatting.SpaceAfterCast" />
+
+    <!-- Comments. -->
+    <rule ref="Generic.Commenting.Todo" />
+
+    <!-- Naming conventions. -->
+    <rule ref="Squiz.NamingConventions.ValidVariableName">
+        <exclude name="Squiz.NamingConventions.ValidVariableName.PrivateNoUnderscore" />
+    </rule>
+
+    <!-- Comment policy. -->
     <rule ref="Squiz.Commenting">
-        <!-- Exclude the specific sniff -->
-        <exclude name="Squiz.Commenting.FileComment.IncorrectCopyright"/>
-        <exclude name="Squiz.Commenting.FileComment.MissingAuthorTag"/>
-        <exclude name="Squiz.Commenting.FileComment.IncorrectAuthor"/>
-        <exclude name="Squiz.Commenting.FileComment.MissingSubpackageTag"/>
-        <exclude name="Squiz.Commenting.FileComment.SubpackageTagOrder"/>
-        <exclude name="Squiz.Commenting.FileComment.MissingCopyrightTag"/>
-        <exclude name="Squiz.Commenting.ClosingDeclarationComment.Missing"/>
+        <exclude name="Squiz.Commenting.FileComment" />
+        <exclude name="Squiz.Commenting.VariableComment.IncorrectVarType" />
+        <exclude name="Squiz.Commenting.FunctionComment.IncorrectParamVarName" />
+        <exclude name="Squiz.Commenting.FunctionComment.InvalidReturn" />
+        <exclude name="Squiz.Commenting.ClosingDeclarationComment" />
+        <exclude name="Squiz.Commenting.LongConditionClosingComment" />
+        <exclude name="Squiz.Commenting.PostStatementComment" />
     </rule>
 
-    <!-- Additional rulesets -->
-    <rule ref="Generic.Files.LineLength">
+    <!-- Forbidden or discouraged functions. -->
+    <rule ref="Generic.PHP.ForbiddenFunctions">
         <properties>
-            <property name="lineLimit" value="120"/>
-            <property name="absoluteLineLimit" value="150"/>
+            <property name="forbiddenFunctions" type="array">
+                <element key="sizeof" value="count" />
+                <element key="var_dump" value="null" />
+                <element key="print_r" value="null" />
+                <element key="dump" value="null" />
+                <element key="dd" value="null" />
+            </property>
         </properties>
     </rule>
 
+    <!-- Warn at 120 characters; report an error beyond 150. -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120" />
+            <property name="absoluteLineLimit" value="150" />
+        </properties>
+    </rule>
+
+    <!-- Disallow underscore prefixes on methods and properties. -->
+    <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+        <type>error</type>
+    </rule>
+
+    <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
+        <type>error</type>
+    </rule>
 </ruleset>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1700000000">
+  <project timestamp="1700000000">
+    <file name="/src/Example.php">
+      <class name="Example" namespace="Teqnomaze">
+        <metrics elements="40" coveredelements="30"/>
+      </class>
+      <metrics elements="40" coveredelements="30"/>
+    </file>
+    <metrics elements="100" coveredelements="88"/>
+  </project>
+</coverage>

@@ -1,0 +1,74 @@
+# Check coding standards and static code analysis
+name: Code Analysis
+
+on:
+  # Runs on pushes and pull requests targeting the main branch
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Sets permissions of the GITHUB_TOKEN
+permissions:
+  contents: read
+
+# Cancel outdated runs of the same branch or pull request
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Check PHP coding standards and run static analysis
+  lint:
+    name: Code Quality & Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer:v2
+          coverage: none
+
+      - name: Validate Composer
+        run: composer validate --strict
+
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Coding Standards
+        run: composer run-script phpcs
+
+      - name: Static Analysis
+        run: composer run-script phpstan
+
+  # Run tests and the coverage check on every supported PHP version
+  test:
+    name: PHP ${{ matrix.php }} Compatibility
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.2", "8.3", "8.4", "8.5"]
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          # Coverage driver is required: phpunit.xml writes build/clover.xml
+          coverage: pcov
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Composer
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: PHPUnit Testing
+        run: composer run-script phpunit
+
+      - name: Coverage Check
+        run: composer run-script coverage

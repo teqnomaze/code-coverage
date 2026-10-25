@@ -1,7 +1,9 @@
 parameters:
-	level: 6
-	paths:
-		- bin
-		- src
-		- tests
-	ignoreErrors:
+    level: 8
+
+    paths:
+        - src
+        - tests
+
+    excludePaths:
+        - vendor
